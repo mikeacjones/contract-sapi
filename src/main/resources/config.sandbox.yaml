@@ -1,8 +1,8 @@
 anypoint:
   platform:
-    autodiscovery: "16472743"
+    autodiscovery: "16478028"
 snowflake:
-  database: "CAMBIUM"
+  database: "CAMBIUM_DEV"
   table: "BILL_PAID_JOBS"
   warehouse: "CAMBIUM"
 mq:
