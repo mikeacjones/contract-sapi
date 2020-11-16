@@ -29,5 +29,5 @@ jobs:
           SECURE_PROPERTIES_KEY: ${{ secrets.SECURE_PROPERTIES_KEY }}
           SETTINGS_ENV: sandbox
           PLATFORM_ENV: Sandbox
-          APP_NAME: sandbox-bill-sapi
+          APP_NAME: sandbox-contract-sapi
           BUSINESS_GROUP_ID: a8f5e5b7-17ab-4a7f-be14-9e390f9e3775
