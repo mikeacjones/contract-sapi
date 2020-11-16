@@ -14,7 +14,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 		<app.runtime>4.3.0-20201013</app.runtime>
-		<mule.maven.plugin.version>3.3.5</mule.maven.plugin.version>
+		<mule.maven.plugin.version>3.4.1</mule.maven.plugin.version>
 	</properties>
 
 	<build>
@@ -30,6 +30,24 @@
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
 				<configuration>
+					<cloudHubDeployment>
+						<muleVersion>4.3.0</muleVersion>
+						<username>${env.PLATFORM_USERNAME}</username>
+						<password>${env.PLATFORM_PASSWORD}</password>
+						<applicationName>${env.APP_NAME}</applicationName>
+						<environment>${env.PLATFORM_ENV}</environment>
+						<workers>1</workers>
+						<workerType>MEDIUM</workerType>
+						<objectStoreV2>true</objectStoreV2>
+						<region>us-east-2</region>
+						<businessGroupId>${env.BUSINESS_GROUP_ID}</businessGroupId>
+						<properties>
+							<anypoint.platform.client_id>${env.PLATFORM_CLIENT_ID}</anypoint.platform.client_id>
+							<anypoint.platform.client_secret>${env.PLATFORM_CLIENT_SECRET}</anypoint.platform.client_secret>
+							<securePropertiesKey>${env.SECURE_PROPERTIES_KEY}</securePropertiesKey>
+							<environment>${env.SETTINGS_ENV}</environment>
+						</properties>
+					</cloudHubDeployment>
 				</configuration>
 			</plugin>
 		</plugins>
