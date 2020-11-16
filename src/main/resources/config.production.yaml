@@ -1,0 +1,9 @@
+anypoint:
+  platform:
+    autodiscovery: "16473460"
+snowflake:
+  database: "CAMBIUM"
+  table: "BILL_PAID_JOBS"
+  warehouse: "CAMBIUM"
+mq:
+  destination: "bill-paid-events"

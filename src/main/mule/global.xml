@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<global-property doc:name="Global Property" doc:id="b25f8e7c-f3c5-499e-a411-d2fa6f632e4d" name="environment" value="sandbox" />
+	<configuration-properties doc:name="Configuration properties" doc:id="7237a09b-56aa-4388-b67a-6ddd17b99fba" file="config.${environment}.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="767be9d4-0fed-446f-b642-f61eda80bab9" file="config.secure.${environment}.yaml" key="${securePropertiesKey}" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="abbd3431-44a2-4f5c-b977-3de6cb8a1a42">
+		<salesforce:basic-connection username="${secure::cpq.username}" password="${secure::cpq.password}" securityToken="${secure::cpq.token}" url="https://learninga-z--devfull.my.salesforce.com/services/Soap/u/50.0" />
+	</salesforce:sfdc-config>
+</mule>

@@ -1,0 +1,33 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [sandbox]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Build mule application
+        run: mvn -B package -s .maven/settings.xml
+        env:
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          PLATFORM_USERNAME: ${{ secrets.PLATFORM_USERNAME }}
+          PLATFORM_PASSWORD: ${{ secrets.PLATFORM_PASSWORD }}
+      - name: Deploy mule application to sandbox
+        run: mvn -B deploy -DmuleDeploy -s .maven/settings.xml
+        env:
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          PLATFORM_CLIENT_ID: ${{ secrets.SANDBOX_PLATFORM_CLIENT_ID }}
+          PLATFORM_CLIENT_SECRET: ${{ secrets.SANDBOX_PLATFORM_CLIENT_SECRET }}
+          PLATFORM_USERNAME: ${{ secrets.PLATFORM_USERNAME }}
+          PLATFORM_PASSWORD: ${{ secrets.PLATFORM_PASSWORD }}
+          SECURE_PROPERTIES_KEY: ${{ secrets.SECURE_PROPERTIES_KEY }}
+          SETTINGS_ENV: sandbox
+          PLATFORM_ENV: Sandbox
+          APP_NAME: sandbox-bill-sapi
+          BUSINESS_GROUP_ID: a8f5e5b7-17ab-4a7f-be14-9e390f9e3775

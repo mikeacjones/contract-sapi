@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+    <http:listener-config name="system-api-contracts-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="system-api-contracts-config" api="resource::a8f5e5b7-17ab-4a7f-be14-9e390f9e3775:system-api-contracts:1.0.5:raml:zip:system-api-contracts.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<flow name="system-api-contracts-main">
+        <http:listener config-ref="system-api-contracts-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="system-api-contracts-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND, APP:NOT_FOUND" enableNotifications="true" logException="true">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="system-api-contracts-console">
+        <http:listener config-ref="system-api-contracts-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="system-api-contracts-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="delete:\contracts\(id):system-api-contracts-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <salesforce:delete doc:name="Delete" doc:id="67d4511b-82db-4da8-b6f8-f53d3b6feef9" config-ref="Salesforce_Config">
+            <salesforce:ids><![CDATA[#[vars.id]]]></salesforce:ids>
+        </salesforce:delete>
+        <validation:is-true doc:id="87e94913-457f-4b98-826a-7da3213c4432" expression="#[payload.successful]"/>
+        <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Contract deleted"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\contracts:system-api-contracts-config">
+        <salesforce:query doc:name="select contracts" doc:id="e4b5be20-144d-4529-9430-d1cdb085ad81" config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[#[output application/java
+import * from dw::SOQL
+
+var whereClauses = [
+  ("AccountId IN (" ++ toSOQLArray(attributes.queryParams.*AccountId) ++ ")") if (sizeOf(attributes.queryParams.*AccountId default []) > 0),
+  ("Contact__c IN (" ++ toSOQLArray(attributes.queryParams.*ContactId) ++ ")") if (sizeOf(attributes.queryParams.*ContactId default []) > 0)
+] filter (not isEmpty($))
+
+---
+"SELECT $(keys.Contract joinBy ", ") FROM Contract $(whereString(whereClauses)) LIMIT $(attributes.queryParams.limit default 500) OFFSET $(attributes.queryParams.offset default 0)"]]]></salesforce:salesforce-query>
+        </salesforce:query>
+        <ee:transform doc:name="map to canonical" doc:id="7d3816af-4b39-4a52-85a0-66fa9805a888">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	CustomerSignedDate: payload01.CustomerSignedDate as String default "",
+	AmendmentRenewalBehavior: payload01.SBQQ__AmendmentRenewalBehavior__c default "",
+	RenewalOwnerId: payload01.SBQQ__RenewalOwner__c,
+	AccountId: payload01.AccountId,
+	Description: payload01.Description default "",
+	BillingCity: payload01.BillingCity default "",
+	BillingCountryCode: payload01.BillingCountryCode default "",
+	AmendmentOwnerId: payload01.SBQQ__AmendmentOwner__c,
+	ContactId: payload01.Contact__c,
+	ContractTerm: payload01.ContractTerm default 0,
+	PreserveBundleStructureUponRenewals: payload01.SBQQ__PreserveBundleStructureUponRenewals__c default true,
+	RenewalQuoted: payload01.SBQQ__RenewalQuoted__c default true,
+	BillingContactId: payload01.BillingContact__c,
+	StartDate: payload01.StartDate as String default "",
+	SubscriptionQuantitiesCombined: payload01.SBQQ__SubscriptionQuantitiesCombined__c default true,
+	AmendmentPricebookId: payload01.SBQQ__AmendmentPricebookId__c,
+	BillingPostalCode: payload01.BillingPostalCode default "",
+	Status: payload01.Status default "",
+	LicenseCoordinatorId: payload01.License_Coordinator__c default 0,
+	RenewalPricebookId: payload01.SBQQ__RenewalPricebookId__c,
+	RenewalForecast: payload01.SBQQ__RenewalForecast__c default true,
+	EndDate: payload01.EndDate as String default "",
+	BillingStreet: payload01.BillingStreet default "",
+	BillingStateCode: payload01.BillingStateCode default "",
+	BillId: payload01.bill_id__c,
+	RenewalTerm: payload01.SBQQ__RenewalTerm__c default 0,
+	Id: payload01.Id,
+	Evergreen: payload01.SBQQ__Evergreen__c default true,
+	DoNotRenewOrAmend: payload01.DoNotRenewOrAmend__c default true
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+	<flow name="post:\contracts:application\json:system-api-contracts-config">
+        <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	AccountId: payload.AccountId,
+	StartDate: payload.StartDate as Date,
+	EndDate: payload.EndDate as Date,
+	BillingStreet: payload.BillingStreet,
+	BillingCity: payload.BillingCity,
+	BillingPostalCode: payload.BillingPostalCode,
+	BillingStateCode: payload.BillingStateCode,
+	BillingCountryCode: payload.BillingCountryCode,
+	ContractTerm: payload.ContractTerm,
+	Status: 'Draft',
+	CompanySignedDate: payload.CustomerSignedDate as Date,
+	Description: payload.Description,
+	bill_id__c: payload.BillId,
+	License_Coordinator__c: payload.LicenseCoordinatorId,
+	SBQQ__AmendmentOwner__c: payload.AmendmentOwnerId,
+	SBQQ__AmendmentPricebookId__c: lookup('determine-pricebook', payload.StartDate, 999999),
+	SBQQ__AmendmentRenewalBehavior__c: 'Earliest End Date',
+	SBQQ__Evergreen__c: false,
+	SBQQ__PreserveBundleStructureUponRenewals__c: true,
+	SBQQ__RenewalForecast__c: false,
+	SBQQ__RenewalOwner__c: payload.RenewalOwnerId,
+	SBQQ__RenewalPricebookId__c: lookup('determine-pricebook', payload.EndDate, 999999),
+	SBQQ__RenewalQuoted__c: false,
+	SBQQ__RenewalTerm__c: 12,
+	SBQQ__SubscriptionQuantitiesCombined__c: false,
+	BillingContact__c: payload.BillingContactId,
+	Contact__c: payload.ContactId,
+	DoNotRenewOrAmend__c: payload.DoNotRenewOrAmend
+}]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <salesforce:upsert objectType="Contract" externalIdFieldName="bill_id__c" doc:name="Upsert" doc:id="5e7bab6f-5471-44e1-9019-3ee08efc0ac3" config-ref="Salesforce_Config" />
+		<validation:is-true doc:name="Is true" doc:id="d2e18b90-cfe7-492a-b47f-fee2248a72d3" expression="#[payload.successful]"/>
+		<ee:transform doc:name="map to message return" doc:id="32171a44-ed9a-434d-83ec-dc8a265693ba" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	message: "Contract created",
+	id: payload.items[0].id
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+    </flow>
+    <flow name="get:\contracts\(id):system-api-contracts-config">
+        <ee:transform doc:name="set var.id">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <salesforce:query doc:name="find contract" doc:id="b7801d0e-636e-403c-80f6-c7bff8d06979" config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[#[output application/java
+import * from dw::SOQL
+
+---
+"SELECT $(keys.Contract joinBy ", ") FROM Contract WHERE Id = '$(vars.id default 0)'"]]]></salesforce:salesforce-query>
+        </salesforce:query>
+        <validation:is-not-empty-collection doc:name="Is not empty collection" doc:id="7534a793-5f01-4359-833d-c7196730320c">
+            <error-mapping sourceType="VALIDATION:EMPTY_COLLECTION" targetType="APP:NOT_FOUND" />
+        </validation:is-not-empty-collection>
+        <set-payload value="#[payload[0]]" doc:name="select first result" doc:id="6ef261e2-6b47-4bc7-946e-f59df36f5a7b" />
+        <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="map to canonical">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	CustomerSignedDate: payload.CustomerSignedDate as String default "",
+	AmendmentRenewalBehavior: payload.SBQQ__AmendmentRenewalBehavior__c default "",
+	RenewalOwnerId: payload.SBQQ__RenewalOwner__c default "",
+	AccountId: payload.AccountId default "",
+	Description: payload.Description default "",
+	BillingCity: payload.BillingCity default "",
+	BillingCountryCode: payload.BillingCountryCode default "",
+	AmendmentOwnerId: payload.SBQQ__AmendmentOwner__c default "",
+	ContactId: payload.Contact__c default "",
+	ContractTerm: payload.ContractTerm default 0,
+	PreserveBundleStructureUponRenewals: payload.SBQQ__PreserveBundleStructureUponRenewals__c default true,
+	RenewalQuoted: payload.SBQQ__RenewalQuoted__c default true,
+	BillingContactId: payload.BillingContact__c default "",
+	StartDate: payload.StartDate as String default "",
+	SubscriptionQuantitiesCombined: payload.SBQQ__SubscriptionQuantitiesCombined__c default true,
+	AmendmentPricebookId: payload.SBQQ__AmendmentPricebookId__c default "",
+	BillingPostalCode: payload.BillingPostalCode default "",
+	Status: payload.Status default "",
+	LicenseCoordinatorId: payload.License_Coordinator__c default "",
+	RenewalPricebookId: payload.SBQQ__RenewalPricebookId__c default "",
+	RenewalForecast: payload.SBQQ__RenewalForecast__c default true,
+	EndDate: payload.EndDate as String default "",
+	BillingStreet: payload.BillingStreet default "",
+	BillingStateCode: payload.BillingStateCode default "",
+	BillId: payload.bill_id__c default "",
+	RenewalTerm: payload.SBQQ__RenewalTerm__c default 0,
+	Id: payload.Id default "",
+	Evergreen: payload.SBQQ__Evergreen__c default true,
+	DoNotRenewOrAmend: payload.DoNotRenewOrAmend__c default true
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+	<flow name="determine-pricebook" doc:id="a6b0596e-6eea-439e-95ca-326b730156b2">
+        <salesforce:query doc:name="find pricebook" doc:id="2537e249-e561-4706-bf8f-f8f4905cea26" config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[SELECT Id, Name FROM Pricebook2 WHERE Name = ':pricebookName']]></salesforce:salesforce-query>
+            <salesforce:parameters><![CDATA[#[{
+	pricebookName: "$((payload as Date).year) Pricebook"
+}]]]></salesforce:parameters>
+        </salesforce:query>
+        <validation:is-not-empty-collection doc:name="Is not empty collection" doc:id="f760b06b-1cba-4e60-9040-ed4e324b311c" />
+		<set-payload value="#[payload[0].Id]" doc:name="set payload to payload[0].Id" doc:id="04f49c16-3388-4eac-a052-24bd5bcec01f" />
+		<error-handler>
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d6897a0d-8ae3-4b97-9271-25f535b7e125" type="ANY">
+				<salesforce:query doc:name="find standard price book" doc:id="efb2cf01-3ec0-4e15-9fc5-c91a64538bd8" config-ref="Salesforce_Config">
+					<salesforce:salesforce-query ><![CDATA[SELECT Id, Name FROM Pricebook2 WHERE Name = 'Standard Price Book']]></salesforce:salesforce-query>
+				</salesforce:query>
+				<set-payload value="#[payload[0].Id]" doc:name="Set Payload" doc:id="76b0e5d1-a937-480d-8aed-7abf7c5243b3" />
+			</on-error-continue>
+        </error-handler>
+    </flow>
+</mule>
