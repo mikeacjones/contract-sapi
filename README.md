@@ -1,7 +1,7 @@
 # System API - Contracts
 
-![Build and Deploy](https://github.com/mikeacjones/contract-sapi/workflows/Build%20and%20Deploy/badge.svg?branch=master)
-![Build and Deploy](https://github.com/mikeacjones/contract-sapi/workflows/Build%20and%20Deploy/badge.svg?branch=sandbox)
+![Build and Deploy - Production](https://github.com/mikeacjones/contract-sapi/workflows/Build%20and%20Deploy%20-%20Production/badge.svg?branch=master)
+![Build and Deploy - Sandbox](https://github.com/mikeacjones/contract-sapi/workflows/Build%20and%20Deploy%20-%20Sandbox/badge.svg?branch=sandbox)
 
 This service provides functionality around Contracts, allowing you to get/create/delete contracts.
 
